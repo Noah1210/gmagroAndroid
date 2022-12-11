@@ -22,6 +22,9 @@ public class LesInterventions extends Activity {
         binding = ActivityLesInterventionsBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
         getWindow().getDecorView().setBackgroundColor(Color.BLACK);
+        InterventionsFragment mainFragment = new InterventionsFragment();
+        FragmentTransaction fragmentTransactionMain = getFragmentManager().beginTransaction();
+        fragmentTransactionMain.replace(R.id.frameLayout, mainFragment, "A").addToBackStack("name").commit();
 
         binding.bottomNavigationView.setOnItemSelectedListener(item -> {
             switch (item.getItemId()) {
@@ -43,7 +46,7 @@ public class LesInterventions extends Activity {
             }
             return true;
         });
-
     }
+
 
 }
