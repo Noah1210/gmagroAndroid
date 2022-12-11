@@ -1,19 +1,19 @@
 package com.npardon.gmagroandroid.ui;
 
-import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.Fragment;
-import androidx.fragment.app.FragmentManager;
-import androidx.fragment.app.FragmentTransaction;
+
 
 import android.app.Activity;
 
+
+import android.app.FragmentTransaction;
 import android.graphics.Color;
 import android.os.Bundle;
 
 import com.npardon.gmagroandroid.R;
 import com.npardon.gmagroandroid.databinding.ActivityLesInterventionsBinding;
 
-public class LesInterventions extends AppCompatActivity {
+public class LesInterventions extends Activity {
     ActivityLesInterventionsBinding binding;
 
     @Override
@@ -22,18 +22,23 @@ public class LesInterventions extends AppCompatActivity {
         binding = ActivityLesInterventionsBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
         getWindow().getDecorView().setBackgroundColor(Color.BLACK);
-        replaceFragment(new InterventionsFragment());
 
         binding.bottomNavigationView.setOnItemSelectedListener(item -> {
             switch (item.getItemId()) {
                 case R.id.home:
-                    replaceFragment(new InterventionsFragment());
+                    InterventionsFragment homeFragment = new InterventionsFragment();
+                    FragmentTransaction fragmentTransactionHome = getFragmentManager().beginTransaction();
+                    fragmentTransactionHome.replace(R.id.frameLayout, homeFragment, "A").addToBackStack("name").commit();
                     break;
                 case R.id.add:
-                    replaceFragment(new AddFragment());
+                    AddFragment addFragment = new AddFragment();
+                    FragmentTransaction fragmentTransactionAdd = getFragmentManager().beginTransaction();
+                    fragmentTransactionAdd.replace(R.id.frameLayout, addFragment, "A").addToBackStack("name").commit();
                     break;
                 case R.id.profile:
-                    replaceFragment(new ProfileFragment());
+                    ProfileFragment profileFragment = new ProfileFragment();
+                    FragmentTransaction fragmentTransactionProfile = getFragmentManager().beginTransaction();
+                    fragmentTransactionProfile.replace(R.id.frameLayout, profileFragment, "A").addToBackStack("name").commit();
                     break;
             }
             return true;
@@ -41,10 +46,4 @@ public class LesInterventions extends AppCompatActivity {
 
     }
 
-    private void replaceFragment(Fragment fragment){
-        FragmentManager fragmentManager = getSupportFragmentManager();
-        FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
-        fragmentTransaction.replace(R.id.frameLayout,fragment);
-        fragmentTransaction.commit();
-    }
 }
