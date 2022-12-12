@@ -15,7 +15,7 @@ import com.npardon.gmagroandroid.beans.Intervenant;
 import com.npardon.gmagroandroid.daos.DaoIntervenant;
 import com.npardon.gmagroandroid.daos.DelegateAsyncTask;
 
-public class Connexion extends Activity {
+public class Connexion extends AppCompatActivity {
     private TextView inputLogin, inputPassword;
     public static Intervenant intervenantConnecte = null;
 

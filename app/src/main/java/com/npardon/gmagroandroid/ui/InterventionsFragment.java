@@ -9,9 +9,11 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.npardon.gmagroandroid.R;
+import com.npardon.gmagroandroid.beans.Intervenant;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -66,13 +68,21 @@ public class InterventionsFragment extends Fragment {
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
         View view = inflater.inflate(R.layout.fragment_interventions, container, false);
+
+        TextView tvUser = view.findViewById(R.id.tvUser);
+        tvUser.setText("Bonjour "+Connexion.intervenantConnecte.getPrenom());
         button = view.findViewById(R.id.button);
-        button.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Toast.makeText(getActivity(), "ITS WORKING", Toast.LENGTH_SHORT).show();
-            }
-        });
+        Bundle bundle = this.getArguments();
+        if(bundle != null){
+            Intervenant test = (Intervenant) bundle.getSerializable("intervenant");
+            button.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    Toast.makeText(getActivity(), "ITS WORKING "+test.getLogin(), Toast.LENGTH_SHORT).show();
+                }
+            });
+        }
+
         return view;
     }
 }

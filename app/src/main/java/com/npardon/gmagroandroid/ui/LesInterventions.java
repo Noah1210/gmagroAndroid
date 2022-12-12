@@ -1,5 +1,6 @@
 package com.npardon.gmagroandroid.ui;
 
+import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.Fragment;
 
 
@@ -13,7 +14,7 @@ import android.os.Bundle;
 import com.npardon.gmagroandroid.R;
 import com.npardon.gmagroandroid.databinding.ActivityLesInterventionsBinding;
 
-public class LesInterventions extends Activity {
+public class LesInterventions extends AppCompatActivity {
     ActivityLesInterventionsBinding binding;
 
     @Override
@@ -21,10 +22,10 @@ public class LesInterventions extends Activity {
         super.onCreate(savedInstanceState);
         binding = ActivityLesInterventionsBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
-        getWindow().getDecorView().setBackgroundColor(Color.BLACK);
         InterventionsFragment mainFragment = new InterventionsFragment();
+
         FragmentTransaction fragmentTransactionMain = getFragmentManager().beginTransaction();
-        fragmentTransactionMain.replace(R.id.frameLayout, mainFragment, "A").addToBackStack("name").commit();
+        fragmentTransactionMain.add(R.id.frameLayout, mainFragment, "A").addToBackStack("name").commit();
 
         binding.bottomNavigationView.setOnItemSelectedListener(item -> {
             switch (item.getItemId()) {
@@ -47,6 +48,7 @@ public class LesInterventions extends Activity {
             return true;
         });
     }
+
 
 
 }
