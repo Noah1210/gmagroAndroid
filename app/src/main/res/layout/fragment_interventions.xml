@@ -35,6 +35,7 @@
         app:layout_constraintTop_toBottomOf="@+id/tvUser" />
 
     <View
+        android:id="@+id/view"
         android:layout_width="0dp"
         android:layout_height="2dp"
         android:layout_marginTop="8dp"
@@ -48,7 +49,15 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="Button"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent" />
+
+    <ListView
+        android:id="@+id/lvInterventions"
+        android:layout_width="391dp"
+        android:layout_height="519dp"
+        app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        tools:layout_editor_absoluteY="315dp" />
+        app:layout_constraintTop_toBottomOf="@+id/view" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

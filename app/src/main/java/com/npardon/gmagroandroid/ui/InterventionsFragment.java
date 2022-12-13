@@ -4,16 +4,20 @@ import android.app.Fragment;
 import android.os.Bundle;
 
 
-
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import com.npardon.gmagroandroid.R;
 import com.npardon.gmagroandroid.beans.Intervenant;
+import com.npardon.gmagroandroid.beans.InterventionsUnfinishedAdapter;
+import com.npardon.gmagroandroid.daos.DaoIntervention;
+import com.npardon.gmagroandroid.daos.DelegateAsyncTask;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -27,6 +31,7 @@ public class InterventionsFragment extends Fragment {
     private static final String ARG_PARAM1 = "param1";
     private static final String ARG_PARAM2 = "param2";
     private Button button;
+    private InterventionsUnfinishedAdapter interventionsUnfinishedAdapter ;
 
     // TODO: Rename and change types of parameters
     private String mParam1;
@@ -72,6 +77,18 @@ public class InterventionsFragment extends Fragment {
         TextView tvUser = view.findViewById(R.id.tvUser);
         tvUser.setText("Bonjour "+Connexion.intervenantConnecte.getPrenom());
         button = view.findViewById(R.id.button);
+
+        ListView lv = ((ListView)view.findViewById(R.id.lvInterventions)) ;
+        //Log.d("e", "onCreateView: "+DaoIntervention.getInstance().getLocalInterventions());
+        interventionsUnfinishedAdapter = new InterventionsUnfinishedAdapter(getActivity().getApplicationContext(), DaoIntervention.getInstance().getLocalInterventions());
+        lv.setAdapter(interventionsUnfinishedAdapter);
+        DaoIntervention.getInstance().getInterventions(new DelegateAsyncTask() {
+            @Override
+            public void whenWSIsTerminated(Object result) {
+                interventionsUnfinishedAdapter.notifyDataSetChanged();
+            }
+        });
+
         Bundle bundle = this.getArguments();
         if(bundle != null){
             Intervenant test = (Intervenant) bundle.getSerializable("intervenant");

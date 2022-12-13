@@ -1,6 +1,7 @@
 package com.npardon.gmagroandroid.ui;
 
 import android.content.Intent;
+import android.media.Image;
 import android.os.Bundle;
 
 import android.app.Fragment;
@@ -9,6 +10,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.ImageView;
 import android.widget.Toast;
 
 import com.npardon.gmagroandroid.R;
