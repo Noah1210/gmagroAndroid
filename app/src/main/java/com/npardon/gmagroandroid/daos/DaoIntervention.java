@@ -46,6 +46,7 @@ public class DaoIntervention {
         wsConnexionHTTPS.execute(url);
     }
     private void traiterRetourGetInterventions(String s, DelegateAsyncTask delegate) throws JSONException {
+        interventions.clear();
         JSONObject jsGlobal = new JSONObject(s);
         JSONArray ja = jsGlobal.getJSONArray("response");
         for(int i = 0; i< ja.length() ; i++){

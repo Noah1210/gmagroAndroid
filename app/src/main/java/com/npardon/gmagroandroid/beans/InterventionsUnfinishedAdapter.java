@@ -4,6 +4,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.net.Uri;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -15,23 +16,31 @@ import android.widget.Toast;
 
 import com.npardon.gmagroandroid.R;
 import com.npardon.gmagroandroid.daos.DaoActivite;
+import com.npardon.gmagroandroid.daos.DaoIntervention;
 import com.npardon.gmagroandroid.daos.DaoMachine;
 import com.npardon.gmagroandroid.daos.DelegateAsyncTask;
 import com.npardon.gmagroandroid.ui.Connexion;
 import com.npardon.gmagroandroid.ui.LesInterventions;
+import com.squareup.picasso.Picasso;
 
 import java.io.IOException;
 import java.net.MalformedURLException;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.net.URL;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.List;
+import java.util.Locale;
 
 import javax.crypto.Mac;
 
 public class InterventionsUnfinishedAdapter extends BaseAdapter {
     private Context context;
     private String msg = "";
-    private ImageView imgMachine;
     private List<Intervention> interventions;
+    private Machine ma = null;
 
     public InterventionsUnfinishedAdapter(Context context, List<Intervention> interventions) {
         this.interventions = interventions;
@@ -67,24 +76,47 @@ public class InterventionsUnfinishedAdapter extends BaseAdapter {
                 Activite ac = (Activite) result;
                 if (ac != null) {
                     msg = ac.getLibelle();
-                    Log.d("TAG", "LE LIBELLE: "+ac.getLibelle());
-
                 }
             }
         });
-
+        ImageView imgMachine = convertView.findViewById(R.id.imageMachine);
         DaoMachine.getInstance().getMachineById(i.getMachineCode(), new DelegateAsyncTask() {
             @Override
             public void whenWSIsTerminated(Object result) {
-                Machine ma = (Machine) result;
+                ma = (Machine) result;
                 if (ma != null) {
                     msg = msg +" "+ ma.getCodeMachine();
+                    msg = msg.replaceAll("_", " ").toLowerCase();
+                    msg = msg.replaceAll("0", "");
                     tvMachine.setText(msg);
+                    Log.d("machine", "MachineTypeCode Is: "+ma.getTypeMachineCode());
+                    Picasso.get().load("http://sio.jbdelasalle.com/~npardon/gmagro/photos/"+ma.getTypeMachineCode()+".jpg").into(imgMachine);
                 }
             }
         });
-        imgMachine = convertView.findViewById(R.id.imageMachine);
-        tvDate.setText(i.getDhDerniereMaj());
+        String dateHeure = i.getDhDerniereMaj();
+        String[] dateHeureSplit = dateHeure.split("\\s+");
+        tvDate.setText(transformDate(dateHeureSplit[0], dateHeureSplit[1]));
         return convertView;
+    }
+
+    private String transformDate(String date, String heure){
+        SimpleDateFormat formatDate = new SimpleDateFormat("yyyy-MM-dd");
+        String msg = "";
+        try {
+            Date newDate = formatDate.parse(date);
+            formatDate = new SimpleDateFormat("d MMMM yyyy", Locale.FRANCE);
+            String laDate = formatDate.format(newDate);
+
+            SimpleDateFormat formatHeure = new SimpleDateFormat("hh:mm:ss");
+            Date newHeure = formatHeure.parse(heure);
+            formatHeure = new SimpleDateFormat("HH:mm");
+            String lHeure = formatHeure.format(newHeure);
+            msg = "Le "+ laDate +" à " + lHeure;
+        } catch (ParseException e) {
+            e.printStackTrace();
+        }
+
+        return msg;
     }
 }

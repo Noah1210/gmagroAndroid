@@ -7,23 +7,28 @@
 
     <TextView
         android:id="@+id/tvInterventionDate"
-        android:layout_width="wrap_content"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
+        android:layout_marginTop="5dp"
         android:text="TextViewDate"
         android:textColor="@color/pink1"
         android:textSize="14sp"
         android:textStyle="bold"
-        app:layout_constraintStart_toEndOf="@+id/imageMachine"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="@+id/tvInterventionActivite"
         app:layout_constraintTop_toBottomOf="@+id/tvInterventionActivite" />
 
     <TextView
         android:id="@+id/tvInterventionActivite"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+        android:layout_width="0dp"
+        android:layout_height="59dp"
+        android:layout_marginStart="4dp"
+        android:layout_marginTop="5dp"
         android:text="TextView"
         android:textColor="@color/pink1"
         android:textSize="24sp"
         android:textStyle="bold"
+        app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toEndOf="@+id/imageMachine"
         app:layout_constraintTop_toTopOf="parent" />
 
@@ -31,6 +36,8 @@
         android:id="@+id/imageMachine"
         android:layout_width="96dp"
         android:layout_height="89dp"
+        android:layout_marginLeft="2dp"
+        android:layout_marginTop="5dp"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
         tools:srcCompat="@tools:sample/avatars" />

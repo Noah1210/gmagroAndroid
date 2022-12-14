@@ -15,9 +15,12 @@ import android.widget.Toast;
 
 import com.npardon.gmagroandroid.R;
 import com.npardon.gmagroandroid.beans.Intervenant;
+import com.npardon.gmagroandroid.beans.Intervention;
 import com.npardon.gmagroandroid.beans.InterventionsUnfinishedAdapter;
 import com.npardon.gmagroandroid.daos.DaoIntervention;
 import com.npardon.gmagroandroid.daos.DelegateAsyncTask;
+
+import java.util.List;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -77,10 +80,9 @@ public class InterventionsFragment extends Fragment {
         TextView tvUser = view.findViewById(R.id.tvUser);
         tvUser.setText("Bonjour "+Connexion.intervenantConnecte.getPrenom());
         button = view.findViewById(R.id.button);
-
+        List<Intervention> interventions = DaoIntervention.getInstance().getLocalInterventions();
         ListView lv = ((ListView)view.findViewById(R.id.lvInterventions)) ;
-        //Log.d("e", "onCreateView: "+DaoIntervention.getInstance().getLocalInterventions());
-        interventionsUnfinishedAdapter = new InterventionsUnfinishedAdapter(getActivity().getApplicationContext(), DaoIntervention.getInstance().getLocalInterventions());
+        interventionsUnfinishedAdapter = new InterventionsUnfinishedAdapter(getActivity().getApplicationContext(), interventions);
         lv.setAdapter(interventionsUnfinishedAdapter);
         DaoIntervention.getInstance().getInterventions(new DelegateAsyncTask() {
             @Override
@@ -88,7 +90,6 @@ public class InterventionsFragment extends Fragment {
                 interventionsUnfinishedAdapter.notifyDataSetChanged();
             }
         });
-
         Bundle bundle = this.getArguments();
         if(bundle != null){
             Intervenant test = (Intervenant) bundle.getSerializable("intervenant");
