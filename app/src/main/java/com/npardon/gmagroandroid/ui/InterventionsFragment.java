@@ -8,6 +8,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
 import android.widget.Button;
 import android.widget.ListView;
 import android.widget.TextView;
@@ -81,13 +82,27 @@ public class InterventionsFragment extends Fragment {
         tvUser.setText("Bonjour "+Connexion.intervenantConnecte.getPrenom());
         button = view.findViewById(R.id.button);
         List<Intervention> interventions = DaoIntervention.getInstance().getLocalInterventions();
-        ListView lv = ((ListView)view.findViewById(R.id.lvInterventions)) ;
+        ListView lv = ((ListView)view.findViewById(R.id.lvIntervenants)) ;
         interventionsUnfinishedAdapter = new InterventionsUnfinishedAdapter(getActivity().getApplicationContext(), interventions);
         lv.setAdapter(interventionsUnfinishedAdapter);
         DaoIntervention.getInstance().getInterventions(new DelegateAsyncTask() {
             @Override
             public void whenWSIsTerminated(Object result) {
                 interventionsUnfinishedAdapter.notifyDataSetChanged();
+            }
+        });
+
+        lv.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                Intervention in = (Intervention) parent.getAdapter().getItem(position);
+                Bundle bundle = new Bundle();
+                bundle.putSerializable("intervention", in);
+                bundle.putSerializable("activite",((TextView)view.findViewById(R.id.tvInterventionActivite)).getText().toString());
+                bundle.putSerializable("date",((TextView)view.findViewById(R.id.tvInterventionDate)).getText().toString());
+                UpdateFragment frag = new UpdateFragment();
+                frag.setArguments(bundle);
+                getFragmentManager().beginTransaction().replace(R.id.frameLayout, frag).commit();
             }
         });
         Bundle bundle = this.getArguments();

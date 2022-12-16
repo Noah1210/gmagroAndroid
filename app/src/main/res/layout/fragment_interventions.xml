@@ -53,7 +53,7 @@
         app:layout_constraintStart_toStartOf="parent" />
 
     <ListView
-        android:id="@+id/lvInterventions"
+        android:id="@+id/lvIntervenants"
         android:layout_width="391dp"
         android:layout_height="0dp"
         app:layout_constraintBottom_toTopOf="@+id/button"

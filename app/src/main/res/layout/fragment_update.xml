@@ -19,7 +19,7 @@
         app:layout_constraintTop_toBottomOf="@+id/tvIntervenants"/>
 
     <ListView
-        android:id="@+id/lvInterventions"
+        android:id="@+id/lvIntervenants"
         android:layout_width="381dp"
         android:layout_height="219dp"
         android:layout_marginTop="8dp"
@@ -37,7 +37,7 @@
         android:textSize="18sp"
         android:textStyle="bold"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/txSymptomes2" />
+        app:layout_constraintTop_toBottomOf="@+id/txCommentaire" />
 
     <TextView
         android:id="@+id/txSymptomes"
@@ -46,46 +46,61 @@
         android:layout_marginStart="8dp"
         android:text="Symptomes"
         android:textColor="@color/pink1"
-        android:textSize="20sp"
+        android:textSize="18sp"
         android:textStyle="bold"
-        app:layout_constraintBottom_toBottomOf="@+id/imageView"
+        app:layout_constraintBottom_toBottomOf="@+id/imageMachine"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="1.0"
-        app:layout_constraintStart_toEndOf="@+id/imageView"
-        app:layout_constraintTop_toTopOf="@+id/imageView" />
+        app:layout_constraintStart_toEndOf="@+id/imageMachine"
+        app:layout_constraintTop_toTopOf="@+id/imageMachine" />
 
     <TextView
-        android:id="@+id/txSymptomes2"
+        android:id="@+id/txCommentaire"
         android:layout_width="0dp"
         android:layout_height="0dp"
         android:layout_marginTop="16dp"
         android:text="Commentaire :"
         android:textColor="@color/pink1"
-        android:textSize="20sp"
+        android:textSize="16sp"
         android:textStyle="bold"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/imageView" />
+        app:layout_constraintTop_toBottomOf="@+id/imageMachine" />
 
     <TextView
-        android:id="@+id/tvUser4"
+        android:id="@+id/txActivite"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="32dp"
         android:text="Poursuite d'intervention"
+        android:textAlignment="center"
         android:textColor="@color/pink1"
-        android:textSize="36sp"
+        android:textSize="34sp"
         android:textStyle="bold"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
+    <TextView
+        android:id="@+id/txDate"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:text="Date"
+        android:textColor="@color/pink1"
+        android:textSize="24sp"
+        android:textStyle="bold"
+        app:layout_constraintEnd_toEndOf="@+id/txActivite"
+        app:layout_constraintStart_toStartOf="@+id/txActivite"
+        app:layout_constraintTop_toBottomOf="@+id/txActivite" />
+
     <ImageView
-        android:id="@+id/imageView"
+        android:id="@+id/imageMachine"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginStart="8dp"
+        android:layout_marginTop="16dp"
         app:layout_constraintStart_toStartOf="parent"
-        tools:layout_editor_absoluteY="112dp"
+        app:layout_constraintTop_toBottomOf="@+id/txDate"
         tools:src="@tools:sample/avatars" />
 </androidx.constraintlayout.widget.ConstraintLayout>

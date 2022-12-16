@@ -7,8 +7,15 @@ import android.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
+import android.widget.TextView;
 
 import com.npardon.gmagroandroid.R;
+import com.npardon.gmagroandroid.beans.Intervention;
+import com.npardon.gmagroandroid.beans.Machine;
+import com.npardon.gmagroandroid.daos.DaoMachine;
+import com.npardon.gmagroandroid.daos.DelegateAsyncTask;
+import com.squareup.picasso.Picasso;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -60,7 +67,39 @@ public class UpdateFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        // Inflate the layout for this fragment
-        return inflater.inflate(R.layout.fragment_update, container, false);
+        View v = inflater.inflate(R.layout.fragment_update, container, false);
+
+        Bundle bundle = this.getArguments();
+        Intervention in = (Intervention) bundle.getSerializable("intervention");
+        String activite = bundle.getString("activite");
+        String date = bundle.getString("date");
+        TextView title = (TextView) v.findViewById(R.id.txActivite);
+        TextView titleDate = (TextView) v.findViewById(R.id.txDate);
+        TextView causeSymp = (TextView) v.findViewById(R.id.txSymptomes);
+        titleDate.setText(date);
+        title.setText(activite);
+
+        DaoMachine.getInstance().getMachineById(in.getMachineCode(), new DelegateAsyncTask() {
+            @Override
+            public void whenWSIsTerminated(Object result) {
+                Machine ma = (Machine) result;
+                if (ma != null) {
+                    //Picasso.get().load("http://sio.jbdelasalle.com/~npardon/gmagro/photos/" + ma.getTypeMachineCode() + ".jpg").into(imgMachine);
+                }
+            }
+        });
+
+        causeSymp.setText(in.getSymptomeObjetCode()+" "+in.getSymptomeDefaultCode()+"\n"+in.getCauseObjetCode()+" "+in.getCauseDefautCode());
+        ImageView imgMachine = v.findViewById(R.id.imageMachine);
+        DaoMachine.getInstance().getMachineById(in.getMachineCode(), new DelegateAsyncTask() {
+            @Override
+            public void whenWSIsTerminated(Object result) {
+                Machine ma = (Machine) result;
+                if (ma != null) {
+                    Picasso.get().load("http://sio.jbdelasalle.com/~npardon/gmagro/photos/" + ma.getTypeMachineCode() + ".jpg").into(imgMachine);
+                }
+            }
+        });
+        return v;
     }
 }
