@@ -4,6 +4,7 @@ import android.os.Bundle;
 
 import android.app.Fragment;
 
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -11,8 +12,11 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.npardon.gmagroandroid.R;
+import com.npardon.gmagroandroid.beans.CSOD;
+import com.npardon.gmagroandroid.beans.CSODType;
 import com.npardon.gmagroandroid.beans.Intervention;
 import com.npardon.gmagroandroid.beans.Machine;
+import com.npardon.gmagroandroid.daos.DaoCSOD;
 import com.npardon.gmagroandroid.daos.DaoMachine;
 import com.npardon.gmagroandroid.daos.DelegateAsyncTask;
 import com.squareup.picasso.Picasso;
@@ -89,6 +93,15 @@ public class UpdateFragment extends Fragment {
             }
         });
 
+        DaoCSOD.getInstance().getCSOD(new DelegateAsyncTask() {
+            @Override
+            public void whenWSIsTerminated(Object result) {
+                Log.d("TAG", "whenWSIsTerminated: ");
+            }
+        });
+//        CSODType soT = CSODType.CD;
+//        CSOD so = new CSOD("cod", "lib", soT);
+//        so.getCsodType();
         causeSymp.setText(in.getSymptomeObjetCode()+" "+in.getSymptomeDefaultCode()+"\n"+in.getCauseObjetCode()+" "+in.getCauseDefautCode());
         ImageView imgMachine = v.findViewById(R.id.imageMachine);
         DaoMachine.getInstance().getMachineById(in.getMachineCode(), new DelegateAsyncTask() {
