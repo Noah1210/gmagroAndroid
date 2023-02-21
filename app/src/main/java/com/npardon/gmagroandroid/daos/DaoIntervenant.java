@@ -1,8 +1,11 @@
 package com.npardon.gmagroandroid.daos;
 
+import android.util.Log;
+
 import com.npardon.gmagroandroid.beans.Intervenant;
 import com.npardon.gmagroandroid.net.WSConnexionHTTPS;
 
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -12,13 +15,19 @@ import java.util.List;
 public class DaoIntervenant {
     private static DaoIntervenant instance = null;
     private final List<Intervenant> intervenants;
+    private final List<Intervenant> intervenantsByInterv;
 
     private DaoIntervenant() {
         intervenants = new ArrayList<>();
+        intervenantsByInterv = new ArrayList<>();
     }
 
     public List<Intervenant> getLocalIntervenants() {
         return intervenants;
+    }
+
+    public List<Intervenant> getLocalIntervenantsByInterv() {
+        return intervenantsByInterv;
     }
 
     public static DaoIntervenant getInstance() {
@@ -57,5 +66,76 @@ public class DaoIntervenant {
             in = new Intervenant(login, nom, prenom, mail, actif, codeSite);
         }
         delegate.whenWSIsTerminated(in);
+    }
+
+    public void getIntervenantsByInterventionId(String id, DelegateAsyncTask delegate) {
+        String url = "uc=intervenants&action=getIntervenantByIntervId&interventionId="+ id;
+        WSConnexionHTTPS wsConnexionHTTPS = new WSConnexionHTTPS() {
+            @Override
+            protected void onPostExecute(String s) {
+                try {
+                    traiterRetourGetIntervenantsByInterventionId(s, delegate);
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+            }
+        };
+        wsConnexionHTTPS.execute(url);
+    }
+
+    private void traiterRetourGetIntervenantsByInterventionId(String s, DelegateAsyncTask delegate) throws JSONException {
+        intervenantsByInterv.clear();
+        JSONObject jsGlobal = new JSONObject(s);
+        JSONArray ja = jsGlobal.getJSONArray("response");
+        for(int i = 0; i< ja.length() ; i++){
+            JSONObject jsResult = ja.getJSONObject(i);
+            String loginInterv = jsResult.getString("loginInterv");
+            String nomInterv = jsResult.getString("nomInterv");
+            String prenomInterv = jsResult.getString("prenomInterv");
+            String mail = jsResult.getString("mail");
+            String actifString = jsResult.getString("actif");
+            boolean actif = Boolean.parseBoolean(actifString);
+            String codeSite = jsResult.getString("codeSite");
+            String temps = jsResult.getString("tpsPasse");
+
+            Intervenant in = new Intervenant(loginInterv, nomInterv, prenomInterv, mail, actif, codeSite, temps);
+            intervenantsByInterv.add(in);
+        }
+        delegate.whenWSIsTerminated(s);
+    }
+
+    public void getIntervenants(DelegateAsyncTask delegate) {
+        String url = "uc=intervenants&action=getIntervenant";
+        WSConnexionHTTPS wsConnexionHTTPS = new WSConnexionHTTPS() {
+            @Override
+            protected void onPostExecute(String s) {
+                try {
+                    traiterRetourGetIntervenants(s, delegate);
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+            }
+        };
+        wsConnexionHTTPS.execute(url);
+    }
+
+    private void traiterRetourGetIntervenants(String s, DelegateAsyncTask delegate) throws JSONException {
+        intervenants.clear();
+        JSONObject jsGlobal = new JSONObject(s);
+        JSONArray ja = jsGlobal.getJSONArray("response");
+        for(int i = 0; i< ja.length() ; i++){
+            JSONObject jsResult = ja.getJSONObject(i);
+            String loginInterv = jsResult.getString("loginInterv");
+            String nomInterv = jsResult.getString("nomInterv");
+            String prenomInterv = jsResult.getString("prenomInterv");
+            String mail = jsResult.getString("mail");
+            String actifString = jsResult.getString("actif");
+            boolean actif = Boolean.parseBoolean(actifString);
+            String codeSite = jsResult.getString("codeSite");
+
+            Intervenant in = new Intervenant(loginInterv, nomInterv, prenomInterv, mail, actif, codeSite);
+            intervenants.add(in);
+        }
+        delegate.whenWSIsTerminated(s);
     }
 }

@@ -10,6 +10,7 @@ public class Intervenant implements Serializable {
     private String mail;
     private boolean actif;
     private String codeSite;
+    private String temps;
 
 
     public Intervenant(String login, String password, String nom, String prenom, String mail, String codeSite) {
@@ -28,6 +29,16 @@ public class Intervenant implements Serializable {
         this.mail = mail;
         this.actif = actif;
         this.codeSite = codeSite;
+    }
+
+    public Intervenant(String login, String nom, String prenom, String mail, boolean actif, String codeSite, String temps) {
+        this.login = login;
+        this.nom = nom;
+        this.prenom = prenom;
+        this.mail = mail;
+        this.actif = actif;
+        this.codeSite = codeSite;
+        this.temps = temps;
     }
 
     public String getLogin() {
@@ -56,5 +67,9 @@ public class Intervenant implements Serializable {
 
     public String getCodeSite() {
         return codeSite;
+    }
+
+    public String getTemps() {
+        return temps;
     }
 }

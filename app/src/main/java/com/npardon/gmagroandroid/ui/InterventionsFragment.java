@@ -4,7 +4,6 @@ import android.app.Fragment;
 import android.os.Bundle;
 
 
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -82,7 +81,7 @@ public class InterventionsFragment extends Fragment {
         tvUser.setText("Bonjour "+Connexion.intervenantConnecte.getPrenom());
         button = view.findViewById(R.id.button);
         List<Intervention> interventions = DaoIntervention.getInstance().getLocalInterventions();
-        ListView lv = ((ListView)view.findViewById(R.id.lvIntervenants)) ;
+        ListView lv = ((ListView)view.findViewById(R.id.lvIntervention)) ;
         interventionsUnfinishedAdapter = new InterventionsUnfinishedAdapter(getActivity().getApplicationContext(), interventions);
         lv.setAdapter(interventionsUnfinishedAdapter);
         DaoIntervention.getInstance().getInterventions(new DelegateAsyncTask() {

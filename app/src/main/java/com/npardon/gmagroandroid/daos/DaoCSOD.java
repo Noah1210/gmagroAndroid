@@ -44,6 +44,7 @@ public class DaoCSOD {
         return sos;
     }
 
+
     public static DaoCSOD getInstance() {
         if (instance == null) {
             instance = new DaoCSOD();
@@ -71,7 +72,7 @@ public class DaoCSOD {
         JSONArray ja = jsGlobal.getJSONArray("response");
         for (int i = 0; i < ja.length(); i++) {
             JSONObject jsResult = ja.getJSONObject(i);
-            Log.d("TEST JSON", "TEST JSON: "+jsResult);
+
             switch (jsResult.getString("cd")){
                 case "cd":
                     String code_cd = jsResult.getString("code");
@@ -83,13 +84,9 @@ public class DaoCSOD {
                 case "co":
                     String code_co = jsResult.getString("code");
                     String libelle_co = jsResult.getString("libelle");
-
                     CSODType type_co = CSODType.CO;
-                    Log.d("TAG", "TYPE: "+type_co);
                     CSOD co = new CSOD(code_co, libelle_co, type_co);
-                    Log.d("TAG", "OBJECT CO: "+co.getLibelle());
                     cos.add(co);
-                    //Log.d("TAG", "WOOOORK CO: "+cos.get(0).getLibelle());
                     break;
                 case "so":
                     String code_so = jsResult.getString("code");
@@ -101,43 +98,60 @@ public class DaoCSOD {
                 case "sd":
                     String code_sd = jsResult.getString("code");
                     String libelle_sd = jsResult.getString("libelle");
-                    //Log.d("TAG", "traiterSD: "+libelle_sd);
                     CSODType type_sd = CSODType.SD;
                     CSOD sd = new CSOD(code_sd, libelle_sd, type_sd);
-
                     sds.add(sd);
                     break;
             }
-            Log.d("TAG", "WOOOORK CO: "+cos.get(i).getLibelle());
-            //Log.d("TAG", "traiterCD: "+cds.get(0).getLibelle());
-            //Log.d("TAG", "WorkOrGae: "+cos.get(0).getLibelle());
         }
         delegate.whenWSIsTerminated(s);
     }
 
-//    public void getActiviteById(String id, DelegateAsyncTask delegate) {
-//        String url = "uc=activite&action=getActiviteById&id=" + id;
-//        WSConnexionHTTPS wsConnexionHTTPS = new WSConnexionHTTPS() {
-//            @Override
-//            protected void onPostExecute(String s) {
-//                try {
-//                    traiterRetourGetActiviteById(s, delegate);
-//                } catch (JSONException e) {
-//                    e.printStackTrace();
-//                }
-//            }
-//        };
-//        wsConnexionHTTPS.execute(url);
-//    }
-//
-//    private void traiterRetourGetActiviteById(String s, DelegateAsyncTask delegate) throws JSONException {
-//        JSONObject jsGlobal = new JSONObject(s);
-//        JSONArray ja = jsGlobal.getJSONArray("response");
-//        JSONObject jsResult = ja.getJSONObject(0);
-//        String code = jsResult.getString("code");
-//        String libelle = jsResult.getString("libelle");
-//        Activite ac = new Activite(libelle, code);
-//        Log.d("wat", "traiterRetourGetActiviteById: "+ac.getLibelle());
-//        delegate.whenWSIsTerminated(ac);
-//    }
+    public void getCSODById(String id, DelegateAsyncTask delegate) {
+        String url = "uc=csod&action=getCSODById&interventionId=" + id;
+        WSConnexionHTTPS wsConnexionHTTPS = new WSConnexionHTTPS() {
+            @Override
+            protected void onPostExecute(String s) {
+                try {
+                    traiterRetourGetCSODById(s, delegate);
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+            }
+        };
+        wsConnexionHTTPS.execute(url);
+    }
+
+    private void traiterRetourGetCSODById(String s, DelegateAsyncTask delegate) throws JSONException {
+        JSONObject jsGlobal = new JSONObject(s);
+        JSONArray ja = jsGlobal.getJSONArray("response");
+        JSONObject jsResult = ja.getJSONObject(0);
+        String codeCD = jsResult.getString("codeCD");
+        String codeCO = jsResult.getString("codeCO");
+        String codeSD = jsResult.getString("codeSD");
+        String codeSO = jsResult.getString("codeSO");
+
+        String libCD = jsResult.getString("libCD");
+        String libCO = jsResult.getString("libCO");
+        String libSD = jsResult.getString("libSD");
+        String libSO = jsResult.getString("libSO");
+
+        CSODType type_cd = CSODType.CD;
+        CSODType type_co = CSODType.CO;
+        CSODType type_sd = CSODType.SD;
+        CSODType type_so = CSODType.SO;
+
+        CSOD cd = new CSOD(codeCD, libCD,type_cd);
+        CSOD co = new CSOD(codeCO, libCO,type_co);
+        CSOD sd = new CSOD(codeSD, libSD,type_sd);
+        CSOD so = new CSOD(codeSO, libSO,type_so);
+
+        List<CSOD> csodId = new ArrayList<>();
+        csodId.add(cd);
+        csodId.add(co);
+        csodId.add(sd);
+        csodId.add(so);
+
+        delegate.whenWSIsTerminated(csodId);
+    }
 }
