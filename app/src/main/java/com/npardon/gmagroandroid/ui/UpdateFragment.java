@@ -1,5 +1,8 @@
 package com.npardon.gmagroandroid.ui;
 
+import android.app.AlertDialog;
+import android.app.DatePickerDialog;
+import android.app.TimePickerDialog;
 import android.os.Bundle;
 
 import android.app.Fragment;
@@ -9,10 +12,15 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
+import android.widget.Button;
+import android.widget.CheckBox;
+import android.widget.CompoundButton;
+import android.widget.DatePicker;
 import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.Spinner;
 import android.widget.TextView;
+import android.widget.TimePicker;
 
 import com.npardon.gmagroandroid.R;
 import com.npardon.gmagroandroid.beans.CSOD;
@@ -30,7 +38,9 @@ import com.npardon.gmagroandroid.daos.DelegateAsyncTask;
 import com.squareup.picasso.Picasso;
 
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.List;
+import java.util.Locale;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -44,7 +54,14 @@ public class UpdateFragment extends Fragment {
     private static final String ARG_PARAM1 = "param1";
     private static final String ARG_PARAM2 = "param2";
     List<CSOD> csodId = new ArrayList<>();
+    private int hour, min ;
     private IntervenantsUpdateAdapter intervenantsUpdateAdapter ;
+    private TextView txUpdateAddTemps, txHeureFin, txTpsMachineAdd;
+    private Spinner spinnerInterv;
+    private List<Intervenant> intervenants, intervenantsOutOfInterv;
+    private ArrayAdapter<Intervenant> intervAdapter;
+    private CheckBox cbIntervStatus, cbMachineOff;
+    private Calendar date;
 
     // TODO: Rename and change types of parameters
     private String mParam1;
@@ -129,10 +146,10 @@ public class UpdateFragment extends Fragment {
             }
         });
 
-        List<Intervenant> intervenants = DaoIntervenant.getInstance().getLocalIntervenantsByInterv();
+        intervenants = DaoIntervenant.getInstance().getLocalIntervenantsByInterv();
 
         ListView lv = ((ListView)v.findViewById(R.id.lvIntervenantsUpdate)) ;
-        intervenantsUpdateAdapter = new IntervenantsUpdateAdapter(getActivity().getApplicationContext(), intervenants, getActivity());
+        intervenantsUpdateAdapter = new IntervenantsUpdateAdapter(getContext(), intervenants, getActivity());
         lv.setAdapter(intervenantsUpdateAdapter);
 
         DaoIntervenant.getInstance().getIntervenantsByInterventionId(in.getId(), new DelegateAsyncTask() {
@@ -142,17 +159,137 @@ public class UpdateFragment extends Fragment {
             }
         });
 
-        Spinner spinnerInterv = ((Spinner) v.findViewById(R.id.spinnerUpdateIntervenant));
-
-        DaoIntervenant.getInstance().getIntervenants(new DelegateAsyncTask() {
+        spinnerInterv = ((Spinner) v.findViewById(R.id.spinnerUpdateIntervenant));
+        intervenantsOutOfInterv = DaoIntervenant.getInstance().getLocalIntervenantsOutOfInterv();
+        intervAdapter = new ArrayAdapter<Intervenant>(getContext(), android.R.layout.simple_spinner_dropdown_item, intervenantsOutOfInterv);
+        spinnerInterv.setAdapter(intervAdapter);
+        DaoIntervenant.getInstance().getIntervenantOutOfIntervId(in.getId(),new DelegateAsyncTask() {
             @Override
             public void whenWSIsTerminated(Object result) {
-                ArrayAdapter<Intervenant> intervAdapter = new ArrayAdapter<Intervenant>(this, android.R.layout.simple_spinner_item);
-
+                intervAdapter.notifyDataSetChanged();
             }
         });
+
+        txUpdateAddTemps = (TextView) v.findViewById(R.id.txUpdateAddTemps);
+        txUpdateAddTemps.setText("00:00");
+        txUpdateAddTemps.setOnClickListener(vi -> {
+            showTimePickerDialog(v);
+        });
+
+        Button btUpdateAddIntervenant = ((Button) v.findViewById(R.id.btUpdateAddIntervenant));
+        btUpdateAddIntervenant.setOnClickListener(view -> {
+            OnClickAdd();
+        });
+
+        cbIntervStatus = ((CheckBox) v.findViewById(R.id.cbIntervStatus));
+        cbMachineOff = ((CheckBox) v.findViewById(R.id.cbMachineOff));
+        txTpsMachineAdd = ((TextView) v.findViewById(R.id.txMachineOff));
+        txHeureFin = ((TextView) v.findViewById(R.id.txIntervStatus));
+
+        txTpsMachineAdd.setVisibility(v.GONE);
+        txHeureFin.setVisibility(v.GONE);
+
+        cbIntervStatus.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                if(isChecked == true){
+                    SetVisibility(txHeureFin, true);
+                }else{
+                    SetVisibility(txHeureFin, false);
+                }
+            }
+        });
+
+        cbMachineOff.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                if(isChecked == true){
+                    SetVisibility(txTpsMachineAdd, true);
+                }else{
+                    SetVisibility(txTpsMachineAdd, false);
+                }
+            }
+        });
+
+        if(!in.getTempsArret().equals("00:00:00")){
+            cbMachineOff.setChecked(true);
+            cbMachineOff.setText(in.getTempsArret());
+            cbMachineOff.setEnabled(false);
+            SetVisibility(txTpsMachineAdd, true);
+        }
+
+        txHeureFin.setOnClickListener(view -> {
+            showDateTimePickerDialog(view);
+        });
+
+
         return v;
 
 
+    }
+
+    private void SetVisibility(TextView tv, boolean visibility) {
+        if (visibility == true){
+            tv.setVisibility(tv.VISIBLE);
+        }else{
+            tv.setVisibility(tv.GONE);
+        }
+
+    }
+
+    private void OnClickAdd() {
+        if(txUpdateAddTemps.getText() != "00:00"){
+            String time = (String) txUpdateAddTemps.getText();
+            Intervenant interv = (Intervenant) spinnerInterv.getSelectedItem();
+            Intervenant intervTime = new Intervenant(interv.getLogin(), interv.getNom(), interv.getPrenom(), interv.getMail(), interv.isActif(), interv.getCodeSite(), time);
+            intervenants.add(intervTime);
+            intervenantsUpdateAdapter.notifyDataSetChanged();
+            intervenantsOutOfInterv.remove(interv);
+            intervAdapter.notifyDataSetChanged();
+
+
+
+        }
+        else{
+            showError(txUpdateAddTemps, "Please add a time");
+        }
+    }
+
+    private void showDateTimePickerDialog(View vi) {
+        final Calendar currentDate = Calendar.getInstance();
+        date = Calendar.getInstance();
+        new DatePickerDialog(getContext(), new DatePickerDialog.OnDateSetListener() {
+            @Override
+            public void onDateSet(DatePicker view, int year, int monthOfYear, int dayOfMonth) {
+                date.set(year, monthOfYear, dayOfMonth);
+                new TimePickerDialog(getContext(), new TimePickerDialog.OnTimeSetListener() {
+                    @Override
+                    public void onTimeSet(TimePicker view, int hourOfDay, int minute) {
+                        date.set(Calendar.HOUR_OF_DAY, hourOfDay);
+                        date.set(Calendar.MINUTE, minute);
+                        Log.v("TAG", "The choosen one " + date.getTime());
+                    }
+                }, currentDate.get(Calendar.HOUR_OF_DAY), currentDate.get(Calendar.MINUTE), false).show();
+            }
+        }, currentDate.get(Calendar.YEAR), currentDate.get(Calendar.MONTH), currentDate.get(Calendar.DATE)).show();
+    }
+
+    private void showTimePickerDialog(View vi) {
+        TimePickerDialog.OnTimeSetListener onTimeSetListener = new TimePickerDialog.OnTimeSetListener() {
+            @Override
+            public void onTimeSet(TimePicker timePicker, int selectedHour, int selectedMin) {
+                hour = selectedHour;
+                min = selectedMin;
+                txUpdateAddTemps.setText(String.format(Locale.getDefault(), "%02d:%02d", hour, min));
+            }
+        };
+        int style = AlertDialog.THEME_HOLO_DARK;
+        TimePickerDialog timePickerDialog = new TimePickerDialog(getContext(), style, onTimeSetListener, hour, min, true);
+        timePickerDialog.show();
+    }
+
+    private void showError(TextView input, String s) {
+        input.setError(s);
+        input.requestFocus();
     }
 }

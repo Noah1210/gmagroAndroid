@@ -72,4 +72,9 @@ public class Intervenant implements Serializable {
     public String getTemps() {
         return temps;
     }
+
+    @Override
+    public String toString() {
+        return nom + " " + prenom;
+    }
 }

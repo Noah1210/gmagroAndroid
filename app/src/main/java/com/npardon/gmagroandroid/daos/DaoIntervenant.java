@@ -9,17 +9,22 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 public class DaoIntervenant {
     private static DaoIntervenant instance = null;
     private final List<Intervenant> intervenants;
     private final List<Intervenant> intervenantsByInterv;
+    private final List<Intervenant> intervenantsOutOfInterv;
 
     private DaoIntervenant() {
         intervenants = new ArrayList<>();
         intervenantsByInterv = new ArrayList<>();
+        intervenantsOutOfInterv = new ArrayList<>();
     }
 
     public List<Intervenant> getLocalIntervenants() {
@@ -28,6 +33,10 @@ public class DaoIntervenant {
 
     public List<Intervenant> getLocalIntervenantsByInterv() {
         return intervenantsByInterv;
+    }
+
+    public List<Intervenant> getLocalIntervenantsOutOfInterv() {
+        return intervenantsOutOfInterv;
     }
 
     public static DaoIntervenant getInstance() {
@@ -75,7 +84,7 @@ public class DaoIntervenant {
             protected void onPostExecute(String s) {
                 try {
                     traiterRetourGetIntervenantsByInterventionId(s, delegate);
-                } catch (JSONException e) {
+                } catch (JSONException | ParseException e) {
                     e.printStackTrace();
                 }
             }
@@ -83,7 +92,7 @@ public class DaoIntervenant {
         wsConnexionHTTPS.execute(url);
     }
 
-    private void traiterRetourGetIntervenantsByInterventionId(String s, DelegateAsyncTask delegate) throws JSONException {
+    private void traiterRetourGetIntervenantsByInterventionId(String s, DelegateAsyncTask delegate) throws JSONException, ParseException {
         intervenantsByInterv.clear();
         JSONObject jsGlobal = new JSONObject(s);
         JSONArray ja = jsGlobal.getJSONArray("response");
@@ -96,10 +105,16 @@ public class DaoIntervenant {
             String actifString = jsResult.getString("actif");
             boolean actif = Boolean.parseBoolean(actifString);
             String codeSite = jsResult.getString("codeSite");
-            String temps = jsResult.getString("tpsPasse");
+            String tempPre = jsResult.getString("tpsPasse");
+
+            SimpleDateFormat formatHeure = new SimpleDateFormat("hh:mm:ss");
+            Date newHeure = formatHeure.parse(tempPre);
+            formatHeure = new SimpleDateFormat("HH:mm");
+            String temps = formatHeure.format(newHeure);
 
             Intervenant in = new Intervenant(loginInterv, nomInterv, prenomInterv, mail, actif, codeSite, temps);
             intervenantsByInterv.add(in);
+
         }
         delegate.whenWSIsTerminated(s);
     }
@@ -135,6 +150,42 @@ public class DaoIntervenant {
 
             Intervenant in = new Intervenant(loginInterv, nomInterv, prenomInterv, mail, actif, codeSite);
             intervenants.add(in);
+        }
+        delegate.whenWSIsTerminated(s);
+    }
+
+
+    public void getIntervenantOutOfIntervId(String id, DelegateAsyncTask delegate) {
+        String url = "uc=intervenants&action=getIntervenantOutOfIntervId&interventionId="+ id;
+        WSConnexionHTTPS wsConnexionHTTPS = new WSConnexionHTTPS() {
+            @Override
+            protected void onPostExecute(String s) {
+                try {
+                    traiterRetourGetIntervenantOutOfIntervId(s, delegate);
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+            }
+        };
+        wsConnexionHTTPS.execute(url);
+    }
+
+    private void traiterRetourGetIntervenantOutOfIntervId(String s, DelegateAsyncTask delegate) throws JSONException {
+        intervenantsOutOfInterv.clear();
+        JSONObject jsGlobal = new JSONObject(s);
+        JSONArray ja = jsGlobal.getJSONArray("response");
+        for(int i = 0; i< ja.length() ; i++){
+            JSONObject jsResult = ja.getJSONObject(i);
+            String loginInterv = jsResult.getString("loginInterv");
+            String nomInterv = jsResult.getString("nomInterv");
+            String prenomInterv = jsResult.getString("prenomInterv");
+            String mail = jsResult.getString("mail");
+            String actifString = jsResult.getString("actif");
+            boolean actif = Boolean.parseBoolean(actifString);
+            String codeSite = jsResult.getString("codeSite");
+
+            Intervenant in = new Intervenant(loginInterv, nomInterv, prenomInterv, mail, actif, codeSite);
+            intervenantsOutOfInterv.add(in);
         }
         delegate.whenWSIsTerminated(s);
     }

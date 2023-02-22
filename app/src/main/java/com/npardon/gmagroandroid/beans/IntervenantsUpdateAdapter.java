@@ -68,7 +68,7 @@ public class IntervenantsUpdateAdapter extends BaseAdapter {
 
         tvInterv.setText(in.getPrenom()+ " "+in.getNom());
         tvTemps.setText(in.getTemps());
-        tvTempsAdded.setText("00:00:00");
+        tvTempsAdded.setText("00:00");
         tvTempsAdded.setOnClickListener(v -> {
             showTimePickerDialog(v);
         });
@@ -82,11 +82,11 @@ public class IntervenantsUpdateAdapter extends BaseAdapter {
             public void onTimeSet(TimePicker timePicker, int selectedHour, int selectedMin) {
                 hour = selectedHour;
                 min = selectedMin;
-                tvTempsAdded.setText(String.format(Locale.getDefault(), "%02d:%02d:%02d", hour, min, 00));
+                tvTempsAdded.setText(String.format(Locale.getDefault(), "%02d:%02d", hour, min));
             }
         };
         int style = AlertDialog.THEME_HOLO_DARK;
-        TimePickerDialog timePickerDialog = new TimePickerDialog(parentActivity, style, onTimeSetListener, hour, min, true);
+        TimePickerDialog timePickerDialog = new TimePickerDialog(context, style, onTimeSetListener, hour, min, true);
         timePickerDialog.show();
     }
 
