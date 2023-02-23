@@ -12,6 +12,8 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent">
 
+
+
         <View
             android:id="@+id/view2"
             android:layout_width="0dp"
@@ -139,6 +141,17 @@
             app:layout_constraintStart_toEndOf="@+id/imageMachine"
             app:layout_constraintTop_toBottomOf="@+id/txDefauts" />
 
+        <EditText
+            android:id="@+id/txAddComment"
+            android:layout_width="0dp"
+            android:layout_height="100dp"
+            android:layout_marginTop="16dp"
+            android:hint="Add extra comment"
+            android:textColor="@color/pink1"
+            app:layout_constraintEnd_toEndOf="@+id/btUpdateAddIntervenant"
+            app:layout_constraintStart_toStartOf="@+id/cbChangOrgane"
+            app:layout_constraintTop_toBottomOf="@+id/cbPertes" />
+
         <Button
             android:id="@+id/btUpdateAddIntervenant"
             android:layout_width="0dp"
@@ -149,6 +162,17 @@
             app:layout_constraintEnd_toEndOf="@+id/lvIntervenantsUpdate"
             app:layout_constraintStart_toStartOf="@+id/lvIntervenantsUpdate"
             app:layout_constraintTop_toBottomOf="@+id/spinnerUpdateIntervenant" />
+
+        <Button
+            android:id="@+id/btUpdateEnd"
+            android:layout_width="0dp"
+            android:layout_height="40dp"
+            android:layout_marginTop="16dp"
+            android:background="@drawable/button_background"
+            android:text="Update"
+            app:layout_constraintEnd_toEndOf="@+id/txAddComment"
+            app:layout_constraintStart_toStartOf="@+id/txAddComment"
+            app:layout_constraintTop_toBottomOf="@+id/txAddComment" />
 
         <Spinner
             android:id="@+id/spinnerUpdateIntervenant"
@@ -214,6 +238,24 @@
             android:text="Machine Arrêtée :"
             app:layout_constraintStart_toStartOf="@+id/cbIntervStatus"
             app:layout_constraintTop_toBottomOf="@+id/cbIntervStatus" />
+
+        <CheckBox
+            android:id="@+id/cbChangOrgane"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="24dp"
+            android:text="Changement d'organe"
+            app:layout_constraintStart_toStartOf="@+id/cbMachineOff"
+            app:layout_constraintTop_toBottomOf="@+id/cbMachineOff" />
+
+        <CheckBox
+            android:id="@+id/cbPertes"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="24dp"
+            android:text="Pertes"
+            app:layout_constraintStart_toEndOf="@+id/cbChangOrgane"
+            app:layout_constraintTop_toTopOf="@+id/cbChangOrgane" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 </androidx.core.widget.NestedScrollView>

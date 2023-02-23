@@ -37,8 +37,11 @@ import com.npardon.gmagroandroid.daos.DaoMachine;
 import com.npardon.gmagroandroid.daos.DelegateAsyncTask;
 import com.squareup.picasso.Picasso;
 
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 
@@ -54,14 +57,15 @@ public class UpdateFragment extends Fragment {
     private static final String ARG_PARAM1 = "param1";
     private static final String ARG_PARAM2 = "param2";
     List<CSOD> csodId = new ArrayList<>();
-    private int hour, min ;
-    private IntervenantsUpdateAdapter intervenantsUpdateAdapter ;
+    private int hour, min;
+    private IntervenantsUpdateAdapter intervenantsUpdateAdapter;
     private TextView txUpdateAddTemps, txHeureFin, txTpsMachineAdd;
     private Spinner spinnerInterv;
     private List<Intervenant> intervenants, intervenantsOutOfInterv;
     private ArrayAdapter<Intervenant> intervAdapter;
-    private CheckBox cbIntervStatus, cbMachineOff;
+    private CheckBox cbIntervStatus, cbMachineOff, cbChangOrgane, cbPertes;
     private Calendar date;
+    private String dateHour;
 
     // TODO: Rename and change types of parameters
     private String mParam1;
@@ -113,29 +117,33 @@ public class UpdateFragment extends Fragment {
         TextView causeDefaut = (TextView) v.findViewById(R.id.txDefauts);
         TextView commentaire = (TextView) v.findViewById(R.id.txComment);
 
+        ImageView imgMachine = v.findViewById(R.id.imageMachine);
+
+        cbIntervStatus = ((CheckBox) v.findViewById(R.id.cbIntervStatus));
+        cbMachineOff = ((CheckBox) v.findViewById(R.id.cbMachineOff));
+        cbChangOrgane = ((CheckBox) v.findViewById(R.id.cbChangOrgane));
+        cbPertes = ((CheckBox) v.findViewById(R.id.cbPertes));
+
+        txTpsMachineAdd = ((TextView) v.findViewById(R.id.txMachineOff));
+        txHeureFin = ((TextView) v.findViewById(R.id.txIntervStatus));
+        ListView lv = ((ListView) v.findViewById(R.id.lvIntervenantsUpdate));
+        spinnerInterv = ((Spinner) v.findViewById(R.id.spinnerUpdateIntervenant));
+        txUpdateAddTemps = (TextView) v.findViewById(R.id.txUpdateAddTemps);
+
+
         titleDate.setText(date);
         title.setText(activite);
 
-        DaoMachine.getInstance().getMachineById(in.getMachineCode(), new DelegateAsyncTask() {
-            @Override
-            public void whenWSIsTerminated(Object result) {
-                Machine ma = (Machine) result;
-                if (ma != null) {
-                    //Picasso.get().load("http://sio.jbdelasalle.com/~npardon/gmagro/photos/" + ma.getTypeMachineCode() + ".jpg").into(imgMachine);
-                }
-            }
-        });
-
-        DaoCSOD.getInstance().getCSODById(in.getId(),new DelegateAsyncTask() {
+        DaoCSOD.getInstance().getCSODById(in.getId(), new DelegateAsyncTask() {
             @Override
             public void whenWSIsTerminated(Object result) {
                 csodId = (List<CSOD>) result;
-                causeSymp.setText(csodId.get(3).getLibelle()+" "+csodId.get(2).getLibelle());
-                causeDefaut.setText(csodId.get(1).getLibelle()+" "+csodId.get(0).getLibelle());
+                causeSymp.setText(csodId.get(3).getLibelle() + " " + csodId.get(2).getLibelle());
+                causeDefaut.setText(csodId.get(1).getLibelle() + " " + csodId.get(0).getLibelle());
             }
         });
         commentaire.setText(in.getCommentaire());
-        ImageView imgMachine = v.findViewById(R.id.imageMachine);
+
         DaoMachine.getInstance().getMachineById(in.getMachineCode(), new DelegateAsyncTask() {
             @Override
             public void whenWSIsTerminated(Object result) {
@@ -147,11 +155,8 @@ public class UpdateFragment extends Fragment {
         });
 
         intervenants = DaoIntervenant.getInstance().getLocalIntervenantsByInterv();
-
-        ListView lv = ((ListView)v.findViewById(R.id.lvIntervenantsUpdate)) ;
         intervenantsUpdateAdapter = new IntervenantsUpdateAdapter(getContext(), intervenants, getActivity());
         lv.setAdapter(intervenantsUpdateAdapter);
-
         DaoIntervenant.getInstance().getIntervenantsByInterventionId(in.getId(), new DelegateAsyncTask() {
             @Override
             public void whenWSIsTerminated(Object result) {
@@ -159,21 +164,20 @@ public class UpdateFragment extends Fragment {
             }
         });
 
-        spinnerInterv = ((Spinner) v.findViewById(R.id.spinnerUpdateIntervenant));
         intervenantsOutOfInterv = DaoIntervenant.getInstance().getLocalIntervenantsOutOfInterv();
         intervAdapter = new ArrayAdapter<Intervenant>(getContext(), android.R.layout.simple_spinner_dropdown_item, intervenantsOutOfInterv);
         spinnerInterv.setAdapter(intervAdapter);
-        DaoIntervenant.getInstance().getIntervenantOutOfIntervId(in.getId(),new DelegateAsyncTask() {
+        DaoIntervenant.getInstance().getIntervenantOutOfIntervId(in.getId(), new DelegateAsyncTask() {
             @Override
             public void whenWSIsTerminated(Object result) {
                 intervAdapter.notifyDataSetChanged();
             }
         });
 
-        txUpdateAddTemps = (TextView) v.findViewById(R.id.txUpdateAddTemps);
+
         txUpdateAddTemps.setText("00:00");
         txUpdateAddTemps.setOnClickListener(vi -> {
-            showTimePickerDialog(v);
+            showTimePickerDialog(v, txUpdateAddTemps);
         });
 
         Button btUpdateAddIntervenant = ((Button) v.findViewById(R.id.btUpdateAddIntervenant));
@@ -181,20 +185,15 @@ public class UpdateFragment extends Fragment {
             OnClickAdd();
         });
 
-        cbIntervStatus = ((CheckBox) v.findViewById(R.id.cbIntervStatus));
-        cbMachineOff = ((CheckBox) v.findViewById(R.id.cbMachineOff));
-        txTpsMachineAdd = ((TextView) v.findViewById(R.id.txMachineOff));
-        txHeureFin = ((TextView) v.findViewById(R.id.txIntervStatus));
-
         txTpsMachineAdd.setVisibility(v.GONE);
         txHeureFin.setVisibility(v.GONE);
 
         cbIntervStatus.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                if(isChecked == true){
+                if (isChecked == true) {
                     SetVisibility(txHeureFin, true);
-                }else{
+                } else {
                     SetVisibility(txHeureFin, false);
                 }
             }
@@ -203,23 +202,44 @@ public class UpdateFragment extends Fragment {
         cbMachineOff.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                if(isChecked == true){
+                if (isChecked == true) {
                     SetVisibility(txTpsMachineAdd, true);
-                }else{
+                } else {
                     SetVisibility(txTpsMachineAdd, false);
                 }
             }
         });
 
-        if(!in.getTempsArret().equals("00:00:00")){
+        if (!in.getTempsArret().equals("00:00:00")) {
             cbMachineOff.setChecked(true);
             cbMachineOff.setText(in.getTempsArret());
             cbMachineOff.setEnabled(false);
+            cbMachineOff.setText("Machine arrêtée : " + in.getTempsArret());
             SetVisibility(txTpsMachineAdd, true);
+        }
+        Log.d("TAG", "onCreateView: "+in.isPerte());
+
+        if(in.isChangementOrgane() == true) {
+            cbChangOrgane.setChecked(true);
+            cbChangOrgane.setEnabled(false);
+        }
+
+        if(in.isPerte() == true) {
+            cbPertes.setChecked(true);
+            cbPertes.setEnabled(false);
         }
 
         txHeureFin.setOnClickListener(view -> {
             showDateTimePickerDialog(view);
+        });
+
+        txTpsMachineAdd.setOnClickListener(view -> {
+            showTimePickerDialog(view, txTpsMachineAdd);
+        });
+
+        Button btUpdateIntervention = ((Button) v.findViewById(R.id.btUpdateEnd));
+        btUpdateIntervention.setOnClickListener(view -> {
+            OnClickUpdate();
         });
 
 
@@ -228,17 +248,22 @@ public class UpdateFragment extends Fragment {
 
     }
 
+    private void OnClickUpdate() {
+        Log.d("TAG", "OnClickUpdate: "+intervenants.get(1).getLogin() +" "+ intervenants.get(1).getTemps());
+
+    }
+
     private void SetVisibility(TextView tv, boolean visibility) {
-        if (visibility == true){
+        if (visibility == true) {
             tv.setVisibility(tv.VISIBLE);
-        }else{
+        } else {
             tv.setVisibility(tv.GONE);
         }
 
     }
 
     private void OnClickAdd() {
-        if(txUpdateAddTemps.getText() != "00:00"){
+        if (txUpdateAddTemps.getText() != "00:00") {
             String time = (String) txUpdateAddTemps.getText();
             Intervenant interv = (Intervenant) spinnerInterv.getSelectedItem();
             Intervenant intervTime = new Intervenant(interv.getLogin(), interv.getNom(), interv.getPrenom(), interv.getMail(), interv.isActif(), interv.getCodeSite(), time);
@@ -248,9 +273,7 @@ public class UpdateFragment extends Fragment {
             intervAdapter.notifyDataSetChanged();
 
 
-
-        }
-        else{
+        } else {
             showError(txUpdateAddTemps, "Please add a time");
         }
     }
@@ -267,20 +290,22 @@ public class UpdateFragment extends Fragment {
                     public void onTimeSet(TimePicker view, int hourOfDay, int minute) {
                         date.set(Calendar.HOUR_OF_DAY, hourOfDay);
                         date.set(Calendar.MINUTE, minute);
-                        Log.v("TAG", "The choosen one " + date.getTime());
+                        SimpleDateFormat formatHeure = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+                        dateHour = formatHeure.format(date.getTime());
+                        txHeureFin.setText(dateHour);
                     }
-                }, currentDate.get(Calendar.HOUR_OF_DAY), currentDate.get(Calendar.MINUTE), false).show();
+                }, currentDate.get(Calendar.HOUR_OF_DAY), currentDate.get(Calendar.MINUTE), true).show();
             }
         }, currentDate.get(Calendar.YEAR), currentDate.get(Calendar.MONTH), currentDate.get(Calendar.DATE)).show();
     }
 
-    private void showTimePickerDialog(View vi) {
+    private void showTimePickerDialog(View vi, TextView tv) {
         TimePickerDialog.OnTimeSetListener onTimeSetListener = new TimePickerDialog.OnTimeSetListener() {
             @Override
             public void onTimeSet(TimePicker timePicker, int selectedHour, int selectedMin) {
                 hour = selectedHour;
                 min = selectedMin;
-                txUpdateAddTemps.setText(String.format(Locale.getDefault(), "%02d:%02d", hour, min));
+                tv.setText(String.format(Locale.getDefault(), "%02d:%02d", hour, min));
             }
         };
         int style = AlertDialog.THEME_HOLO_DARK;
@@ -292,4 +317,7 @@ public class UpdateFragment extends Fragment {
         input.setError(s);
         input.requestFocus();
     }
+
+
 }
+

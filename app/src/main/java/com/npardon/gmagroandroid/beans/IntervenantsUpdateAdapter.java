@@ -24,6 +24,7 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
+import java.util.TimeZone;
 
 public class IntervenantsUpdateAdapter extends BaseAdapter {
     private Context context;
@@ -33,6 +34,7 @@ public class IntervenantsUpdateAdapter extends BaseAdapter {
     private int hour, min ;
     private TextView tvTempsAdded;
     private Activity parentActivity;
+    private String previousDate = "00:00";
 
     public IntervenantsUpdateAdapter(Context context, List<Intervenant> intervenants, Activity parentActivity) {
         this.intervenants = intervenants;
@@ -61,6 +63,8 @@ public class IntervenantsUpdateAdapter extends BaseAdapter {
         if (convertView == null) {
             convertView = LayoutInflater.from(context).inflate(R.layout.layout_lv_intervenants_update, parent, false);
         }
+
+
         Intervenant in = intervenants.get(position);
         TextView tvInterv = convertView.findViewById(R.id.txIntevenants);
         TextView tvTemps = convertView.findViewById(R.id.txIntevenantsTemps);
@@ -70,24 +74,49 @@ public class IntervenantsUpdateAdapter extends BaseAdapter {
         tvTemps.setText(in.getTemps());
         tvTempsAdded.setText("00:00");
         tvTempsAdded.setOnClickListener(v -> {
-            showTimePickerDialog(v);
+            showTimePickerDialog(v, position);
         });
 
         return convertView;
     }
 
-    private void showTimePickerDialog(View v) {
+    private void showTimePickerDialog(View v, int position) {
         TimePickerDialog.OnTimeSetListener onTimeSetListener = new TimePickerDialog.OnTimeSetListener() {
             @Override
             public void onTimeSet(TimePicker timePicker, int selectedHour, int selectedMin) {
                 hour = selectedHour;
                 min = selectedMin;
+                if(!tvTempsAdded.equals("00:00")){
+                    tvTempsAdded.setText("00:00");
+                }
                 tvTempsAdded.setText(String.format(Locale.getDefault(), "%02d:%02d", hour, min));
+                try {
+                    AddTimeToList(position);
+                } catch (ParseException e) {
+                    e.printStackTrace();
+                }
             }
         };
         int style = AlertDialog.THEME_HOLO_DARK;
         TimePickerDialog timePickerDialog = new TimePickerDialog(context, style, onTimeSetListener, hour, min, true);
         timePickerDialog.show();
+    }
+
+    private void AddTimeToList(int position) throws ParseException {
+        SimpleDateFormat timeFormat = new SimpleDateFormat("HH:mm");
+        timeFormat.setTimeZone(TimeZone.getTimeZone("UTC"));
+        if(previousDate.equals("00:00")){
+            previousDate = intervenants.get(position).getTemps();
+        }
+        if(!previousDate.equals("00:00")){
+            intervenants.get(position).setTemps(previousDate);
+        }
+        Date date1 = timeFormat.parse(intervenants.get(position).getTemps());
+        Date date2 = timeFormat.parse((String) tvTempsAdded.getText());
+
+        long sum = date1.getTime() + date2.getTime();
+        String date = timeFormat.format(new Date(sum));
+        intervenants.get(position).setTemps(date);
     }
 
     private String transformDate(String date, String heure){

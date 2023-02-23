@@ -1,5 +1,7 @@
 package com.npardon.gmagroandroid.daos;
 
+import android.util.Log;
+
 import com.npardon.gmagroandroid.beans.Intervenant;
 import com.npardon.gmagroandroid.beans.Intervention;
 import com.npardon.gmagroandroid.net.WSConnexionHTTPS;
@@ -58,8 +60,14 @@ public class DaoIntervention {
             String tempsArret = jsResult.getString("tempsArret");
             String changementOrganeString = jsResult.getString("changementOrgane");
             String perteString = jsResult.getString("perte");
-            boolean changementOrgane = Boolean.parseBoolean(changementOrganeString);
-            boolean perte = Boolean.parseBoolean(perteString);
+            boolean changementOrgane = false;
+            boolean perte = false;
+            if(changementOrganeString.equals("1")){
+                changementOrgane = true;
+            }
+            if(perteString.equals("1")){
+                perte = true;
+            }
             String dhCreation = jsResult.getString("dhCreation");
             String dhDerniereMaj = jsResult.getString("dhDerniereMaj");
             String intervenantLogin = jsResult.getString("intervenantLogin");

@@ -73,6 +73,10 @@ public class Intervenant implements Serializable {
         return temps;
     }
 
+    public void setTemps(String temps) {
+        this.temps = temps;
+    }
+
     @Override
     public String toString() {
         return nom + " " + prenom;
